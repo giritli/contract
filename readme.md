@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/giritli/contract.svg)](https://travis-ci.org/giritli/contract)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/giritli/contract/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/giritli/contract/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/giritli/contract/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/giritli/contract/?branch=master)
 
 # Contract
 Contract is a PHP implementation of the design by contract pattern. It allows you to wrap a contract around a pre-existing class and intercept the requirements and outcome of result and class state. The contracted class also reverts state if the contract is breached.
