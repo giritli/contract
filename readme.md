@@ -5,6 +5,11 @@
 # Contract
 Contract is a PHP implementation of the design by contract pattern. It allows you to wrap a contract around a pre-existing class and intercept the requirements and outcome of result and class state. The contracted class also reverts state if the contract is breached.
 
+## Installation
+To install this package using composer, run the following command:
+
+    composer require giritli/contract
+
 ## Example usage
 Create your initial class that will be wrapped with a contract.
 
