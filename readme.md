@@ -33,6 +33,7 @@ To make a contract on a method, define a method which also exists in the parent 
       - This method specifies at which point the parent method gets called. All contracts must be defined before `enforce()` is called.
 
 
+
     // Create the contract class
     class AccountContract extends Account implements \Giritli\Contract\Contract {
         use \Giritli\Contract\ContractTrait;
