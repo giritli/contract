@@ -13,16 +13,18 @@ To install this package using composer, run the following command:
 ## Example usage
 Create your initial class that will be wrapped with a contract.
 
-    // Create your normal class
-    class Account {
-        public $balance = 0;
-        public function deposit($amount) {
-            $this->balance += (int) $amount;
-        }
-        public function getBalance() {
-            return $this->balance;
-        }
+```php
+// Create your normal class
+class Account {
+    public $balance = 0;
+    public function deposit($amount) {
+        $this->balance += (int) $amount;
     }
+    public function getBalance() {
+        return $this->balance;
+    }
+}
+```
 
 For a class to be a contract, it must extend the class to wrap, and implement `\Giritli\Contract\Contract`. The implementation of the interface is included as the trait: `\Giritli\Contract\ContractTrait`.
 
@@ -40,52 +42,58 @@ To make a contract on a method, define a method which also exists in the parent 
 
 Example usage:
 
-    // Create the contract class
-    class AccountContract extends Account implements \Giritli\Contract\Contract {
-        use \Giritli\Contract\ContractTrait;
-        public function deposit($amount) {
-        
-            $this->requires(function($amount) {
-                return is_numeric($amount) && $amount >= 0;
-            }, 'Amount must be a number and non negative.');
+```php
+// Create the contract class
+class AccountContract extends Account implements \Giritli\Contract\Contract {
+    use \Giritli\Contract\ContractTrait;
+    public function deposit($amount) {
     
-            $this->ensures(function($result) {
-                return $this->balance !== 5;
-            }, 'Account cannot have a balance of 5.');
-        
-            return $this->enforce();
-        }
+        $this->requires(function($amount) {
+            return is_numeric($amount) && $amount >= 0;
+        }, 'Amount must be a number and non negative.');
+
+        $this->ensures(function($result) {
+            return $this->balance !== 5;
+        }, 'Account cannot have a balance of 5.');
+    
+        return $this->enforce();
     }
+}
+```
 
 Once you have created your class and contract, you can use it just like a regular class:
 
-    $account = new AccountContract();
-    
-    try {
-        $account->deposit(4);
-    } catch (\Giritli\Contract\Exception\ContractFailedException $e) {
-    }
-    
-    $account->getBalance(); // 4
-    
-    /**
-     * AccountContract is always instance of Account,
-     * conforms to Liskov substitution principle
-     */
-    $account instanceof Account; // true
+```php
+$account = new AccountContract();
+
+try {
+    $account->deposit(4);
+} catch (\Giritli\Contract\Exception\ContractFailedException $e) {
+}
+
+$account->getBalance(); // 4
+
+/**
+ * AccountContract is always instance of Account,
+ * conforms to Liskov substitution principle
+ */
+$account instanceof Account; // true
+```
 
 If a contract fails, the object is reverted to its last good state:
 
-    $account = new AccountContract();
-    
-    try {
-        $account->deposit(3);
-        $account->deposit(2); // Will fail ensures contract as balance is now 5
-    } catch (\Giritli\Contract\Exception\EnsureContractFailedException $e) {
-        echo $e->getMessage(); // Account cannot have a balance of 5.
-    }
-    
-    $account->getBalance(); // 3
+```php
+$account = new AccountContract();
+
+try {
+    $account->deposit(3);
+    $account->deposit(2); // Will fail ensures contract as balance is now 5
+} catch (\Giritli\Contract\Exception\EnsureContractFailedException $e) {
+    echo $e->getMessage(); // Account cannot have a balance of 5.
+}
+
+$account->getBalance(); // 3
+```
 
 
 ## How does it work?
