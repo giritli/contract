@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit
+	verbose="true"
+	bootstrap="vendor/autoload.php"
+>
+	<testsuites>
+      <testsuite name="Contract test suite">
+         <directory suffix="Test.php">tests</directory>
+      </testsuite>
+   </testsuites>
+
+  <filter>
+    <whitelist>
+      <directory>src/Contract</directory>
+	  <exclude>
+		  <directory>src/Contract/Exception</directory>
+	  </exclude>
+    </whitelist>
+  </filter>
+</phpunit>
+
