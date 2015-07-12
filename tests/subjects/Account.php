@@ -13,6 +13,11 @@ class Account {
 		return $this;
 	}
 
+    public function depositReturningBalance($amount) {
+        $this->deposit($amount);
+        return $this->getBalance();
+    }
+
 	public function getBalance() {
 		return $this->balance;
 	}

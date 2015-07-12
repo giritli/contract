@@ -2,9 +2,14 @@
 
 
 // Require test classes
+use Giritli\Contract\Exception\EnsureContractFailedException;
+
 require_once 'subjects/Account.php';
+require_once 'subjects/AccountWithException.php';
 require_once 'subjects/AccountContract.php';
+require_once 'subjects/AccountContractNoEnsures.php';
 require_once 'subjects/AccountContractNoParent.php';
+require_once 'subjects/AccountWithExceptionContract.php';
 
 class ContractTest extends PHPUnit_Framework_TestCase {
 
@@ -158,4 +163,32 @@ class ContractTest extends PHPUnit_Framework_TestCase {
 	public function testMethodNotFound() {
 		$this->accountContract->parentMethodNotDefined();
 	}
+
+
+    /**
+     * Check that method returns correct value.
+     */
+    public function testMethodReturnsValueWithNoEnsures() {
+        $account = new AccountContractNoEnsures();
+        $account->depositReturningBalance(3);
+        $this->assertEquals($account->depositReturningBalance(4), 7);
+    }
+
+
+    /**
+     * @expectedException \OutOfBoundsException
+     */
+    public function testAccountExceptionIsThrown() {
+        $account = new AccountWithExceptionContract();
+        $account->deposit(2);
+    }
+
+
+    /**
+     * @expectedException \Giritli\Contract\Exception\EnsureContractFailedException
+     */
+    public function testEnsuresExceptionIsThrownNotAccountException() {
+        $account = new AccountWithExceptionContract();
+        $account->deposit(23);
+    }
 }
