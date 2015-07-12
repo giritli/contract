@@ -73,7 +73,7 @@ trait ContractTrait
     public function ensures(Closure $callback, $message = null)
     {
 
-        
+
         // Calls requires method to save on code duplication
         $this->requires($callback, $message, true);
 
@@ -87,25 +87,28 @@ trait ContractTrait
         // Get initial method call with arguments
         $trace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2 + !!$isClone);
         $stack = (object) array_pop($trace);
-        
-        
-        /**
-         * If object is not cloned, clone and enforce on clone, this part
-         * only continues if enforce does not throw an exception
-         */
-        if (!$isClone) {
-            $clonedObject = clone $this;
-            $clonedObject->enforce(true);
-        }
 
         $signature = $stack->class . '::' . $stack->function;
         $contracts = false;
 
         if (isset($this->contracts[$signature])) {
-            $contracts = &$this->contracts[$stack->class . '::' . $stack->function];
-            $contracts->enforced = true;
-            
-            
+            $contracts = &$this->contracts[$signature];
+        }
+
+
+        /**
+         * If object is not cloned, clone and enforce on clone, this part
+         * only continues if enforce does not throw an exception. The
+         * object is also only cloned if ensure conditions exist.
+         */
+        if (!empty($contracts->ensures) && !$isClone) {
+            $clonedObject = clone $this;
+            $clonedObject->enforce(true);
+        }
+
+        if ($contracts && $contracts->enforced = true) {
+
+
             // Loop through requires contracts and execute every one
             foreach ($contracts->requires as $requires) {
                 if (!call_user_func_array($requires->callback, $stack->args)) {
@@ -115,20 +118,32 @@ trait ContractTrait
                 }
             }
         }
-        
-        
-        // Get result of contracted method
-        $result = call_user_func_array(['parent', $stack->function], $stack->args);
-        
-        
-        // If no contracts exist, unlikely, return result
-        if (!$contracts) {
+
+
+        /**
+         * Get result of contracted method but also capture any exception that may be thrown.
+         * Only throw a captured exception back if it is not the cloned object. This needs
+         * to be done in cases where an exception thrown will bypass ensure conditions.
+         */
+        try {
+            $result = call_user_func_array(['parent', $stack->function], $stack->args);
+        } catch (\Exception $exception) {
+            if (!$isClone) {
+                throw $exception;
+            }
+
+            $result = null;
+        }
+
+
+        // If no contract ensure requirements exist, return result
+        if (empty($contracts->ensures)) {
             return $result;
         }
-                
+
         foreach ($contracts->ensures as $ensures) {
             $callback = Closure::bind($ensures->callback, $this);
-            
+
             if (!$callback($result)) {
                 throw new EnsureContractFailedException($ensures->message ?: 'Contract could not be enforced.');
             }
